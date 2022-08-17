@@ -1,4 +1,4 @@
-#define PROFUNDIDAD_MAXIMA 1
+#define PROFUNDIDAD_MAXIMA 2
 
 #include <iostream>
 #include <iomanip>
@@ -54,12 +54,14 @@ bool realizarMovimiento(int posicionEscogida, bool esLadoHumano, int tablero[]) 
 
 	while (piedrasRecogidas > 0) {
 		if (esLadoHumano) {
+			if (posicionEscogida + aux > 13) {
+				posicionEscogida = 0;
+				aux = 0;
+			}
+
 			if (posicionEscogida + aux != 13) { 
 				tablero[posicionEscogida + aux]++;
 				piedrasRecogidas--;
-			} else {
-				posicionEscogida = 0;
-				aux = -1;
 			}
 
 			if (piedrasRecogidas == 0) {
@@ -72,7 +74,13 @@ bool realizarMovimiento(int posicionEscogida, bool esLadoHumano, int tablero[]) 
 			}
 
 			aux++;
+
+
+
+
 		} else { 
+
+
 			if (posicionEscogida + aux != 6) { 
 				tablero[posicionEscogida + aux]++;
 				piedrasRecogidas--; 
@@ -150,28 +158,28 @@ int minMax(int& mejorMovimiento, bool esLadoHumano, int tablero[]) {
 		int puntaje = tablero[6]; 
 
 		for (int i = 0; i < 6; i++) { 
-			int max = puntaje;
+			int valorMovida = puntaje;
 
 			if (tablero[i] != 0) {   
 				bool repiteTurno = realizarMovimiento(i + 1, true, tableroCopia); 
 
-				max = tableroCopia[6] - puntaje;
+				valorMovida = tableroCopia[6] - puntaje;
 
 				if (repiteTurno) {
 					profundidad--; 
 					paso++; 
-					aux[i] = max + minMax(dummy, true, tableroCopia);
+					aux[i] = valorMovida + minMax(dummy, true, tableroCopia);
 					paso--;
 					profundidad++;
 				} else {
 					if (profundidad <= PROFUNDIDAD_MAXIMA) {
-						aux[i] = max + minMax(dummy, false, tableroCopia);
+						aux[i] = valorMovida - minMax(dummy, false, tableroCopia);
 					} else {
-						aux[i] = max;
+						aux[i] = valorMovida;
 					}
 				}
 			} else { 
-				aux[i] = -5000;
+				aux[i] = -10000;
 			}
 
 			for (int j = 0; j < 14; j++) {
@@ -183,25 +191,25 @@ int minMax(int& mejorMovimiento, bool esLadoHumano, int tablero[]) {
 		int huecosComputador = 0;
 
 		for (int i = 7; i < 13; i++) { 
-			int max = puntaje;
+			int valorMovida = puntaje;
 
 			if (tablero[i] != 0) { 
 				bool repiteTurno = realizarMovimiento(i + 1, false, tableroCopia);
 
-				max = tableroCopia[13] - puntaje;
+				valorMovida = tableroCopia[13] - puntaje;
 
 				if (repiteTurno) {
 					profundidad--; 
 					paso++; 
-					aux[huecosComputador] = max + minMax(dummy, false, tableroCopia);
+					aux[huecosComputador] = valorMovida + minMax(dummy, false, tableroCopia);
 					paso--;
 					profundidad++;
 				} else {
 					if (profundidad <= PROFUNDIDAD_MAXIMA) {
-						aux[huecosComputador] = max + minMax(dummy, true, tableroCopia);
+						aux[huecosComputador] = valorMovida - minMax(dummy, true, tableroCopia);
 					}
 					else {
-						aux[huecosComputador] = max;
+						aux[huecosComputador] = valorMovida;
 					}
 				}
 			} else { 
@@ -315,7 +323,11 @@ int main() {
 
 			minMax(mejorMovimiento, false, tablero);
 
-			repiteTurno = realizarMovimiento(mejorMovimiento, false, tablero);
+			cout << endl;
+			cout << "La IA eligió la caza #" << mejorMovimiento + 1 << endl;
+			cout << endl;
+
+			repiteTurno = realizarMovimiento(mejorMovimiento + 1, false, tablero);
 
 			if (repiteTurno) {
 				cout << endl;
